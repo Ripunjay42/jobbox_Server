@@ -53,6 +53,44 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+//add jobs
+app.post('/api/jobs', async (req, res) => {
+  const { job_title, organization, job_description } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO jobs (job_title, organization, job_description)
+      VALUES ($1, $2, $3)
+      RETURNING id;
+    `;
+    const values = [job_title, organization, job_description];
+
+    const result = await pool.query(query, values);
+
+    res.status(200).json({
+      message: 'Job added successfully',
+      jobId: result.rows[0].id
+    });
+  } catch (error) {
+    console.error('Error adding job:', error);
+    res.status(500).json({ message: 'Error adding job' });
+  }
+});
+
+
+
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching jobs', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
