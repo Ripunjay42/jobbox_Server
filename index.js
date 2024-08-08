@@ -110,6 +110,60 @@ app.get('/api/jobs/:id', async (req, res) => {
 });
 
 
+app.post('/api/links', async (req, res) => {
+  try {
+    const { title, link } = req.body;
+    const newLink = await pool.query(
+      'INSERT INTO links (title, link) VALUES ($1, $2) RETURNING *',
+      [title, link]
+    );
+    res.json(newLink.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+app.get('/api/links', async (req, res) => {
+  try {
+    const allLinks = await pool.query('SELECT * FROM links');
+    res.json(allLinks.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+app.post('/api/books', async (req, res) => {
+  try {
+    const { title, link } = req.body;
+    const newBook = await pool.query(
+      'INSERT INTO books (title, link) VALUES ($1, $2) RETURNING *',
+      [title, link]
+    );
+    res.json(newBook.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+app.get('/api/books', async (req, res) => {
+  try {
+    const allbooks = await pool.query('SELECT * FROM books');
+    res.json(allbooks.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
