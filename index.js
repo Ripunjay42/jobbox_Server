@@ -56,15 +56,15 @@ app.post('/login', async (req, res) => {
 
 //add jobs
 app.post('/api/jobs', async (req, res) => {
-  const { job_title, organization, job_description } = req.body;
+  const { job_title, organization, job_description, category } = req.body;
 
   try {
     const query = `
-      INSERT INTO jobs (job_title, organization, job_description)
-      VALUES ($1, $2, $3)
+      INSERT INTO jobs (job_title, organization, job_description, category)
+      VALUES ($1, $2, $3, $4)
       RETURNING id;
     `;
-    const values = [job_title, organization, job_description];
+    const values = [job_title, organization, job_description, category];
 
     const result = await pool.query(query, values);
 
@@ -106,6 +106,43 @@ app.get('/api/jobs/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching job:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+app.get('/api/gov', async (req, res) => {
+  try {
+    console.log('Attempting to fetch government jobs');
+    const result = await pool.query(`
+      SELECT * FROM jobs
+      WHERE category = 'government'
+      ORDER BY created_at DESC;
+    `);
+    console.log('Query executed successfully');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching government jobs:', error);
+    console.error('Error details:', error.message, error.stack);
+    res.status(500).json({ message: 'Error fetching government jobs' });
+  }
+});
+
+
+
+app.get('/api/private', async (req, res) => {
+  try {
+    console.log('Attempting to fetch government jobs');
+    const result = await pool.query(`
+      SELECT * FROM jobs
+      WHERE category = 'private'
+      ORDER BY created_at DESC;
+    `);
+    console.log('Query executed successfully');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching government jobs:', error);
+    console.error('Error details:', error.message, error.stack);
+    res.status(500).json({ message: 'Error fetching government jobs' });
   }
 });
 
