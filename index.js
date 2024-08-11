@@ -164,7 +164,7 @@ app.post('/api/links', async (req, res) => {
 
 app.get('/api/links', async (req, res) => {
   try {
-    const allLinks = await pool.query('SELECT * FROM links');
+    const allLinks = await pool.query('SELECT * FROM links  ORDER BY id DESC');
     res.json(allLinks.rows);
   } catch (err) {
     console.error(err.message);
@@ -191,7 +191,7 @@ app.post('/api/books', async (req, res) => {
 
 app.get('/api/books', async (req, res) => {
   try {
-    const allbooks = await pool.query('SELECT * FROM books');
+    const allbooks = await pool.query('SELECT * FROM books  ORDER BY id DESC');
     res.json(allbooks.rows);
   } catch (err) {
     console.error(err.message);
