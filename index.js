@@ -201,6 +201,86 @@ app.get('/api/books', async (req, res) => {
 
 
 
+//delete
+
+// API endpoint
+
+app.delete('/api/jobs/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid job ID' });
+  }
+
+  try {
+    // First, check if the job exists
+    const checkJob = await pool.query('SELECT * FROM jobs WHERE id = $1', [id]);
+    
+    if (checkJob.rows.length === 0) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    // If job exists, proceed with deletion
+    const result = await pool.query('DELETE FROM jobs WHERE id = $1 RETURNING *', [id]);
+
+    res.json({ message: 'Job deleted successfully', deletedJob: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+// Delete link
+app.delete('/api/links/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid link ID' });
+  }
+
+  try {
+    const checkLink = await pool.query('SELECT * FROM links WHERE id = $1', [id]);
+
+    if (checkLink.rows.length === 0) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    const result = await pool.query('DELETE FROM links WHERE id = $1 RETURNING *', [id]);
+    res.json({ message: 'Link deleted successfully', deletedLink: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting link:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+// Delete book
+app.delete('/api/books/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid book ID' });
+  }
+
+  try {
+    const checkBook = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
+
+    if (checkBook.rows.length === 0) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    const result = await pool.query('DELETE FROM books WHERE id = $1 RETURNING *', [id]);
+    res.json({ message: 'Book deleted successfully', deletedBook: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
