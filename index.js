@@ -1,30 +1,53 @@
-// backend/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
+const { Pool } = require('pg'); // Use Pool from pg module
 const cors = require('cors');
 const dotenv = require('dotenv');
-const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(cors());
 
 dotenv.config();
 
+// Create a new pool of connections
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'Harami12',
-  database: process.env.DB_NAME || 'jobbox',
-  port: process.env.DB_PORT || 5432
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME, 
+  port: parseInt(process.env.DB_PORT), // Ensure port is an integer
+  max: 10, // connection pool limit
+  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
 });
 
-pool.connect()
-  .then(() => console.log('Connected to database'))
-  .catch(err => console.error('Database connection failed:', err.stack));
+// Connect to the database
+pool.connect((err, client, done) => {
+  if (err) {
+    console.error('Database connection failed: ' + err.stack);
+    return;
+  }
+  console.log('Connected to database');
+  done();
+});
 
-// Middleware
-app.use(bodyParser.json());
+
+// const pool = new Pool({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   port: process.env.DB_PORT,
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0
+// });
+
+// pool.connect()
+//   .then(() => console.log('Connected to database'))
+//   .catch(err => console.error('Database connection failed:', err.stack));
+
+// // Middleware
+// app.use(bodyParser.json());
 
 
 
