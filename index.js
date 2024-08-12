@@ -81,26 +81,45 @@ app.post('/login', async (req, res) => {
 
 
 //add jobs
-app.post('/api/jobs', async (req, res) => {
-  const { job_title, organization, job_description, category } = req.body;
+// app.post('/api/jobs', async (req, res) => {
+//   const { job_title, organization, job_description, category } = req.body;
+
+//   try {
+//     const query = `
+//       INSERT INTO jobs (job_title, organization, job_description, category)
+//       VALUES ($1, $2, $3, $4)
+//       RETURNING id;
+//     `;
+//     const values = [job_title, organization, job_description, category];
+
+//     const result = await pool.query(query, values);
+
+//     res.status(200).json({
+//       message: 'Job added successfully',
+//       jobId: result.rows[0].id
+//     });
+//   } catch (error) {
+//     console.error('Error adding job:', error);
+//     res.status(500).json({ message: 'Error adding job' });
+//   }
+// });
+app.get('/api/jobs', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const offset = (page - 1) * limit;
 
   try {
-    const query = `
-      INSERT INTO jobs (job_title, organization, job_description, category)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id;
-    `;
-    const values = [job_title, organization, job_description, category];
+    const totalJobs = await Job.countDocuments(); // Count total jobs
+    const jobs = await Job.find().skip(offset).limit(limit).exec(); // Fetch paginated jobs
 
-    const result = await pool.query(query, values);
-
-    res.status(200).json({
-      message: 'Job added successfully',
-      jobId: result.rows[0].id
+    res.json({
+      jobs,
+      totalJobs,
+      totalPages: Math.ceil(totalJobs / limit),
+      currentPage: page
     });
   } catch (error) {
-    console.error('Error adding job:', error);
-    res.status(500).json({ message: 'Error adding job' });
+    res.status(500).json({ error: 'Failed to fetch jobs' });
   }
 });
 
