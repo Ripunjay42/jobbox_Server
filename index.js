@@ -81,28 +81,30 @@ app.post('/login', async (req, res) => {
 
 
 //add jobs
-// app.post('/api/jobs', async (req, res) => {
-//   const { job_title, organization, job_description, category } = req.body;
+app.post('/api/jobs', async (req, res) => {
+  const { job_title, organization, job_description, category } = req.body;
 
-//   try {
-//     const query = `
-//       INSERT INTO jobs (job_title, organization, job_description, category)
-//       VALUES ($1, $2, $3, $4)
-//       RETURNING id;
-//     `;
-//     const values = [job_title, organization, job_description, category];
+  try {
+    const query = `
+      INSERT INTO jobs (job_title, organization, job_description, category)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id;
+    `;
+    const values = [job_title, organization, job_description, category];
 
-//     const result = await pool.query(query, values);
+    const result = await pool.query(query, values);
 
-//     res.status(200).json({
-//       message: 'Job added successfully',
-//       jobId: result.rows[0].id
-//     });
-//   } catch (error) {
-//     console.error('Error adding job:', error);
-//     res.status(500).json({ message: 'Error adding job' });
-//   }
-// });
+    res.status(200).json({
+      message: 'Job added successfully',
+      jobId: result.rows[0].id
+    });
+  } catch (error) {
+    console.error('Error adding job:', error);
+    res.status(500).json({ message: 'Error adding job' });
+  }
+});
+
+
 app.get('/api/jobs', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 5;
@@ -125,15 +127,15 @@ app.get('/api/jobs', async (req, res) => {
 
 
 
-app.get('/api/jobs', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching jobs', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+// app.get('/api/jobs', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching jobs', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 
 app.get('/api/jobs/:id', async (req, res) => {
