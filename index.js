@@ -5,7 +5,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 const app = express();
-app.use(cors());
+
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 dotenv.config();
 
@@ -46,7 +50,7 @@ pool.connect((err, client, done) => {
 //   .catch(err => console.error('Database connection failed:', err.stack));
 
 // // Middleware
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 
 
 
