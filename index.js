@@ -105,47 +105,47 @@ app.post('/api/jobs', async (req, res) => {
 });
 
 
-app.get('/api/jobs', async (req, res) => {
-  const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-  const limit = parseInt(req.query.limit) || 5; // Default to 5 jobs per page if not provided
-  const offset = (page - 1) * limit; // Calculate the offset for pagination
-
-  try {
-    // Get the total count of jobs
-    const totalJobsResult = await pool.query('SELECT COUNT(*) AS count FROM jobs');
-    const totalJobs = parseInt(totalJobsResult.rows[0].count);
-
-    // Fetch the paginated jobs
-    const result = await pool.query(
-      'SELECT * FROM jobs ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-      [limit, offset]
-    );
-
-    // Calculate total pages
-    const totalPages = Math.ceil(totalJobs / limit);
-
-    res.json({
-      jobs: result.rows,
-      totalJobs,
-      totalPages,
-      currentPage: page
-    });
-  } catch (error) {
-    console.error('Error fetching jobs', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-
 // app.get('/api/jobs', async (req, res) => {
+//   const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+//   const limit = parseInt(req.query.limit) || 5; // Default to 5 jobs per page if not provided
+//   const offset = (page - 1) * limit; // Calculate the offset for pagination
+
 //   try {
-//     const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
-//     res.json(result.rows);
+//     // Get the total count of jobs
+//     const totalJobsResult = await pool.query('SELECT COUNT(*) AS count FROM jobs');
+//     const totalJobs = parseInt(totalJobsResult.rows[0].count);
+
+//     // Fetch the paginated jobs
+//     const result = await pool.query(
+//       'SELECT * FROM jobs ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+//       [limit, offset]
+//     );
+
+//     // Calculate total pages
+//     const totalPages = Math.ceil(totalJobs / limit);
+
+//     res.json({
+//       jobs: result.rows,
+//       totalJobs,
+//       totalPages,
+//       currentPage: page
+//     });
 //   } catch (error) {
 //     console.error('Error fetching jobs', error);
 //     res.status(500).json({ error: 'Internal Server Error' });
 //   }
 // });
+
+
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching jobs', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 app.get('/api/jobs/:id', async (req, res) => {
