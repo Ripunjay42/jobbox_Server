@@ -17,7 +17,6 @@ const pool = new Pool({
   database: process.env.DB_NAME, 
   port: parseInt(process.env.DB_PORT), // Ensure port is an integer
   max: 10, // connection pool limit
-  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
 });
 
 // Connect to the database
