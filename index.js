@@ -297,7 +297,12 @@ app.get('/api/links', async (req, res) => {
       'SELECT * FROM links ORDER BY id DESC LIMIT $1 OFFSET $2',
       [limit, offset]
     );
-    res.json(result.rows);
+
+    const totalResult = await pool.query(`SELECT COUNT(*) FROM links`);
+    const total = parseInt(totalResult.rows[0].count, 10);
+
+    res.json({ links: result.rows, total });
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -361,7 +366,10 @@ app.get('/api/books', async (req, res) => {
       'SELECT * FROM books ORDER BY id DESC LIMIT $1 OFFSET $2',
       [limit, offset]
     );
-    res.json(result.rows);
+    const totalResult = await pool.query(`SELECT COUNT(*) FROM books`);
+    const total = parseInt(totalResult.rows[0].count, 10);
+
+    res.json({ books: result.rows, total });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
