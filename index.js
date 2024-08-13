@@ -203,10 +203,12 @@ app.get('/api/gov', async (req, res) => {
       ORDER BY created_at DESC
       LIMIT $1 OFFSET $2;
     `, [limit, offset]);
-    
-    
+
+    const totalJobsResult = await pool.query(`SELECT COUNT(*) FROM jobs WHERE category = 'government'`);
+    const totalJobs = parseInt(totalJobsResult.rows[0].count, 10);
+
+    res.json({ jobs: result.rows, totalJobs });
     console.log('Query executed successfully');
-    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching government jobs:', error);
     console.error('Error details:', error.message, error.stack);
@@ -243,8 +245,12 @@ app.get('/api/private', async (req, res) => {
       'SELECT * FROM jobs WHERE category = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
       ['private', limit, offset]
     );
-    console.log('Query executed successfully');
-    res.json(result.rows);
+
+
+    const totalJobsResult = await pool.query(`SELECT COUNT(*) FROM jobs WHERE category = 'private'`);
+    const totalJobs = parseInt(totalJobsResult.rows[0].count, 10);
+
+    res.json({ jobs: result.rows, totalJobs });
   } catch (error) {
     console.error('Error fetching private jobs:', error);
     console.error('Error details:', error.message, error.stack);
