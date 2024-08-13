@@ -172,14 +172,38 @@ app.get('/api/jobs/:id', async (req, res) => {
 });
 
 
+// app.get('/api/gov', async (req, res) => {
+//   try {
+//     console.log('Attempting to fetch government jobs');
+//     const result = await pool.query(`
+//       SELECT * FROM jobs
+//       WHERE category = 'government'
+//       ORDER BY created_at DESC;
+//     `);
+//     console.log('Query executed successfully');
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching government jobs:', error);
+//     console.error('Error details:', error.message, error.stack);
+//     res.status(500).json({ message: 'Error fetching government jobs' });
+//   }
+// });
+
+// app.js or your API routes file
 app.get('/api/gov', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  const offset = (page - 1) * limit;
+
   try {
     console.log('Attempting to fetch government jobs');
     const result = await pool.query(`
       SELECT * FROM jobs
       WHERE category = 'government'
-      ORDER BY created_at DESC;
-    `);
+      ORDER BY created_at DESC
+      LIMIT $1 OFFSET $2;
+    `, [limit, offset]);
+    
     console.log('Query executed successfully');
     res.json(result.rows);
   } catch (error) {
@@ -190,23 +214,44 @@ app.get('/api/gov', async (req, res) => {
 });
 
 
+// app.get('/api/private', async (req, res) => {
+//   try {
+//     console.log('Attempting to fetch government jobs');
+//     const result = await pool.query(`
+//       SELECT * FROM jobs
+//       WHERE category = 'private'
+//       ORDER BY created_at DESC;
+//     `);
+//     console.log('Query executed successfully');
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching government jobs:', error);
+//     console.error('Error details:', error.message, error.stack);
+//     res.status(500).json({ message: 'Error fetching government jobs' });
+//   }
+// });
 
 app.get('/api/private', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const offset = (page - 1) * limit;
+
   try {
-    console.log('Attempting to fetch government jobs');
-    const result = await pool.query(`
-      SELECT * FROM jobs
-      WHERE category = 'private'
-      ORDER BY created_at DESC;
-    `);
+    console.log('Attempting to fetch private jobs');
+    const result = await pool.query(
+      'SELECT * FROM jobs WHERE category = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      ['private', limit, offset]
+    );
     console.log('Query executed successfully');
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching government jobs:', error);
+    console.error('Error fetching private jobs:', error);
     console.error('Error details:', error.message, error.stack);
-    res.status(500).json({ message: 'Error fetching government jobs' });
+    res.status(500).json({ message: 'Error fetching private jobs' });
   }
 });
+
+
 
 
 app.post('/api/links', async (req, res) => {
@@ -224,15 +269,53 @@ app.post('/api/links', async (req, res) => {
 });
 
 
+// app.get('/api/links', async (req, res) => {
+//   try {
+//     const allLinks = await pool.query('SELECT * FROM links  ORDER BY id DESC');
+//     res.json(allLinks.rows);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
 app.get('/api/links', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 6;
+  const offset = (page - 1) * limit;
+
   try {
-    const allLinks = await pool.query('SELECT * FROM links  ORDER BY id DESC');
-    res.json(allLinks.rows);
+    const result = await pool.query(
+      'SELECT * FROM links ORDER BY id DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+    res.json(result.rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
+
+
+app.get('/api/links', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  try {
+    const offset = (page - 1) * limit;
+    const result = await pool.query('SELECT * FROM links ORDER BY id ASC LIMIT $1 OFFSET $2', [limit, offset]);
+
+    const totalLinksResult = await pool.query('SELECT COUNT(*) FROM links');
+    const totalLinks = parseInt(totalLinksResult.rows[0].count, 10);
+
+    res.json({ links: result.rows, totalLinks });
+  } catch (error) {
+    console.error('Error fetching links', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 
 
@@ -251,16 +334,51 @@ app.post('/api/books', async (req, res) => {
 });
 
 
-app.get('/api/books', async (req, res) => {
+// app.get('/api/books', async (req, res) => {
+//   try {
+//     const allbooks = await pool.query('SELECT * FROM books  ORDER BY id DESC');
+//     res.json(allbooks.rows);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+app.get('/api/bookss', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const offset = (page - 1) * limit;
+
   try {
-    const allbooks = await pool.query('SELECT * FROM books  ORDER BY id DESC');
-    res.json(allbooks.rows);
+    const result = await pool.query(
+      'SELECT * FROM books ORDER BY id DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+    res.json(result.rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
 
+
+
+app.get('/api/books', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  try {
+    const offset = (page - 1) * limit;
+    const result = await pool.query('SELECT * FROM books ORDER BY id ASC LIMIT $1 OFFSET $2', [limit, offset]);
+
+    const totalBooksResult = await pool.query('SELECT COUNT(*) FROM books');
+    const totalBooks = parseInt(totalBooksResult.rows[0].count, 10);
+
+    res.json({ books: result.rows, totalBooks });
+  } catch (error) {
+    console.error('Error fetching books', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 //delete
