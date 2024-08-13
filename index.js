@@ -298,7 +298,7 @@ app.get('/api/links', async (req, res) => {
 });
 
 
-app.get('/api/links', async (req, res) => {
+app.get('/api/links/delete', async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
 
   try {
@@ -363,7 +363,7 @@ app.get('/api/books', async (req, res) => {
 
 
 
-app.get('/api/books', async (req, res) => {
+app.get('/api/books/delete', async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
 
   try {
