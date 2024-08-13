@@ -129,7 +129,7 @@ app.get('/api/jobs/delete', async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC LIMIT $1 OFFSET $2', [limit, offset]);
+    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at ASC LIMIT $1 OFFSET $2', [limit, offset]);
 
     // Also get the total count of jobs for pagination purposes
     const totalJobsResult = await pool.query('SELECT COUNT(*) FROM jobs');
