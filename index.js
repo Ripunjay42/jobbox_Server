@@ -123,6 +123,25 @@ app.get('/api/jobs', async (req, res) => {
   }
 });
 
+
+app.get('/api/jobs/delete', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  try {
+    const offset = (page - 1) * limit;
+    const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC LIMIT $1 OFFSET $2', [limit, offset]);
+
+    // Also get the total count of jobs for pagination purposes
+    const totalJobsResult = await pool.query('SELECT COUNT(*) FROM jobs');
+    const totalJobs = parseInt(totalJobsResult.rows[0].count, 10);
+
+    res.json({ jobs: result.rows, totalJobs });
+  } catch (error) {
+    console.error('Error fetching jobs', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // app.get('/api/jobs', async (req, res) => {
 //   try {
 //     const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
