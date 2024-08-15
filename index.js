@@ -385,6 +385,31 @@ app.post('/api/courses', async (req, res) => {
 });
 
 
+app.get('/api/courses', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const offset = (page - 1) * limit;
+
+  try {
+    // Query to get paginated courses
+    const result = await pool.query(
+      'SELECT * FROM course ORDER BY id DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+
+    // Query to get the total count of courses
+    const totalResult = await pool.query('SELECT COUNT(*) FROM course');
+    const total = parseInt(totalResult.rows[0].count, 10);
+
+    // Send response
+    res.json({ courses: result.rows, total });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
 app.get('/api/courses/delete', async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
 
