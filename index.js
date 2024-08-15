@@ -168,23 +168,6 @@ app.get('/api/jobs/:id', async (req, res) => {
 });
 
 
-// app.get('/api/gov', async (req, res) => {
-//   try {
-//     console.log('Attempting to fetch government jobs');
-//     const result = await pool.query(`
-//       SELECT * FROM jobs
-//       WHERE category = 'government'
-//       ORDER BY created_at DESC;
-//     `);
-//     console.log('Query executed successfully');
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error('Error fetching government jobs:', error);
-//     console.error('Error details:', error.message, error.stack);
-//     res.status(500).json({ message: 'Error fetching government jobs' });
-//   }
-// });
-
 // app.js or your API routes file
 app.get('/api/gov', async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
@@ -212,23 +195,6 @@ app.get('/api/gov', async (req, res) => {
   }
 });
 
-
-// app.get('/api/private', async (req, res) => {
-//   try {
-//     console.log('Attempting to fetch government jobs');
-//     const result = await pool.query(`
-//       SELECT * FROM jobs
-//       WHERE category = 'private'
-//       ORDER BY created_at DESC;
-//     `);
-//     console.log('Query executed successfully');
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error('Error fetching government jobs:', error);
-//     console.error('Error details:', error.message, error.stack);
-//     res.status(500).json({ message: 'Error fetching government jobs' });
-//   }
-// });
 
 app.get('/api/private', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -302,17 +268,6 @@ app.post('/api/links', async (req, res) => {
 });
 
 
-// app.get('/api/links', async (req, res) => {
-//   try {
-//     const allLinks = await pool.query('SELECT * FROM links  ORDER BY id DESC');
-//     res.json(allLinks.rows);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-
 app.get('/api/links', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 6;
@@ -372,16 +327,6 @@ app.post('/api/books', async (req, res) => {
 });
 
 
-// app.get('/api/books', async (req, res) => {
-//   try {
-//     const allbooks = await pool.query('SELECT * FROM books  ORDER BY id DESC');
-//     res.json(allbooks.rows);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send('Server error');
-//   }
-// });
-
 app.get('/api/books', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 5;
@@ -438,6 +383,25 @@ app.post('/api/courses', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+app.get('/api/courses/delete', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  try {
+    const offset = (page - 1) * limit;
+    const result = await pool.query('SELECT * FROM course ORDER BY id ASC LIMIT $1 OFFSET $2', [limit, offset]);
+
+    const totalCoursesResult = await pool.query('SELECT COUNT(*) FROM course');
+    const totalCourses = parseInt(totalCoursesResult.rows[0].count, 10);
+
+    res.json({ courses: result.rows, totalCourses });
+  } catch (error) {
+    console.error('Error fetching courses', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 //delete
@@ -520,7 +484,33 @@ app.delete('/api/books/:id', async (req, res) => {
 });
 
 
+
+app.delete('/api/courses/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid course ID' });
+  }
+
+  try {
+    const checkCourse = await pool.query('SELECT * FROM course WHERE id = $1', [id]);
+
+    if (checkCourse.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const result = await pool.query('DELETE FROM course WHERE id = $1 RETURNING *', [id]);
+    res.json({ message: 'Course deleted successfully', deletedCourse: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
