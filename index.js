@@ -257,6 +257,36 @@ app.get('/api/private', async (req, res) => {
 
 
 
+app.get('/api/internships', async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+
+  const offset = (page - 1) * limit;
+
+  try {
+    console.log('Attempting to fetch internship jobs');
+    const result = await pool.query(`
+      SELECT * FROM jobs
+      WHERE category = 'internship'
+      ORDER BY created_at DESC
+      LIMIT $1 OFFSET $2;
+    `, [limit, offset]);
+
+    const totalJobsResult = await pool.query(`SELECT COUNT(*) FROM jobs WHERE category = 'internship'`);
+    const totalJobs = parseInt(totalJobsResult.rows[0].count, 10);
+
+    res.json({ jobs: result.rows, totalJobs });
+    console.log('Query executed successfully');
+  } catch (error) {
+    console.error('Error fetching internship jobs:', error);
+    console.error('Error details:', error.message, error.stack);
+    res.status(500).json({ message: 'Error fetching internship jobs' });
+  }
+});
+
+
+
+
+
 app.post('/api/links', async (req, res) => {
   try {
     const { title, link } = req.body;
