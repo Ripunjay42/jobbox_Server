@@ -422,6 +422,24 @@ app.get('/api/books/delete', async (req, res) => {
 });
 
 
+
+//course
+
+app.post('/api/courses', async (req, res) => {
+  try {
+    const { title, link } = req.body;
+    const newCourse = await pool.query(
+      'INSERT INTO course (title, link) VALUES ($1, $2) RETURNING *',
+      [title, link]
+    );
+    res.json(newCourse.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
 //delete
 
 // API endpoint
