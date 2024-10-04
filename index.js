@@ -102,7 +102,7 @@ app.post('/api/jobs', async (req, res) => {
 
 
 app.get('/api/jobs', async (req, res) => {
-  const { page = 1, limit = 5 } = req.query;
+  const { page = 1, limit = 8 } = req.query;
 
   try {
     const offset = (page - 1) * limit;
