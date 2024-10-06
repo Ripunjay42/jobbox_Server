@@ -170,7 +170,7 @@ app.get('/api/jobs/:id', async (req, res) => {
 
 // app.js or your API routes file
 app.get('/api/gov', async (req, res) => {
-  const { page = 1, limit = 8 } = req.query;
+  const { page = 1, limit = 5 } = req.query;
 
   const offset = (page - 1) * limit;
 
