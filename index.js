@@ -4,29 +4,24 @@ const { Pool } = require('pg'); // Use Pool from pg module
 const cors = require('cors');
 const dotenv = require('dotenv');
 
+dotenv.config();
+
 const app = express();
 app.use(cors());
-
-dotenv.config();
 
 // Create a new pool of connections
 const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME, 
+  database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT), // Ensure port is an integer
   max: 10, // connection pool limit
+  ssl: { rejectUnauthorized: false },
 });
 
-// Connect to the database
-pool.connect((err, client, done) => {
-  if (err) {
-    console.error('Database connection failed: ' + err.stack);
-    return;
-  }
-  console.log('Connected to database');
-  done();
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 
@@ -533,9 +528,14 @@ app.delete('/api/courses/:id', async (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Local dev only — Vercel imports the exported app instead
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
 
 
